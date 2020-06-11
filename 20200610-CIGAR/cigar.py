@@ -17,25 +17,38 @@ def align(temp: str, read: str) -> Tuple[str, int]:
 
     (visited, seenext) = ({None}, {(0, 0)})
 
+    costs = {
+        # Deletion
+        'D': +2,
+        # Insertion
+        'I': +2,
+        # Mutation
+        'X': +1,
+        # Match
+        '=': -1,
+        # Skip tails
+        'S': 0,
+    }
+
     def propose(p):
         # i = position in the reference string
         # j = position in the read
         (i, j) = p
         (I, J) = (len(temp), len(read))
         if (i < I):
-            yield ('D', (i + 1, j + 0), C[p] + 1)
+            yield ('D', (i + 1, j + 0), C[p] + costs['D'])
         if (j < J):
-            yield ('I', (i + 0, j + 1), C[p] + 1)
+            yield ('I', (i + 0, j + 1), C[p] + costs['I'])
         if (i < I) and (j < J):
             if (temp[i] == read[j]):
-                yield ('=', (i + 1, j + 1), C[p] - 1)
+                yield ('=', (i + 1, j + 1), C[p] + costs['='])
             else:
-                yield ('X', (i + 1, j + 1), C[p] + 1)
+                yield ('X', (i + 1, j + 1), C[p] + costs['X'])
         if (i < I):
             if (j == 0):
-                yield ('S', (i + 1, j + 0), C[p] + 0)
+                yield ('S', (i + 1, j + 0), C[p] + costs['S'])
             if (j >= J):
-                yield ('S', (i + 1, j + 0), C[p] + 0)
+                yield ('S', (i + 1, j + 0), C[p] + costs['S'])
 
     def onemove(p):
         for (a, q, c) in propose(p):
