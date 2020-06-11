@@ -5,21 +5,17 @@ Burrows-Wheeler transform
 https://www.hpl.hp.com/techreports/Compaq-DEC/SRC-RR-124.pdf
 https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform
 """
-from operator import itemgetter
 
 import numpy as np
 import pandas as pd
 
-from functools import reduce
 from typing import Tuple
-from collections import defaultdict
-from itertools import groupby, chain
 from more_itertools import circular_shifts, last
 
 
 def btw_ref(S: str) -> Tuple[str, int]:
-    ss = sorted(circular_shifts(S))
-    return ("".join(last(s) for s in ss), ss.index(tuple(S)))
+    shifts = sorted(circular_shifts(S))
+    return ("".join(last(s) for s in shifts), shifts.index(tuple(S)))
 
 
 def test_btw_ref():
