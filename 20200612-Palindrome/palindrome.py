@@ -4,7 +4,7 @@
 Exercise [1, p.22]:
 Find genomic palindromes in the genome of "M. jannaschii".
 
-The first achaeon to have its complete genome sequenced.
+The first archaeon to have its complete genome sequenced.
 
 [1] Clote & Backofen, Computational Molecular Biology: An Introduction, 2000, Wiley
 [2] https://en.wikipedia.org/wiki/Methanocaldococcus_jannaschii
@@ -25,13 +25,14 @@ from pathlib import Path
 from datetime import datetime, timezone
 from inclusive import range
 from collections import defaultdict
+from more_itertools import first
 
 PARAM = {
     'fasta': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
     'readme': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/README.txt",
     'md5': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/md5checksums.txt",
 
-    'local': Path(__file__).parent / "genome",
+    'local': Path(__file__).parent / "genome/UV/",
 }
 
 fasta_complement = {
@@ -88,8 +89,11 @@ def check_md5(files):
     for (k, f) in files.items():
         if (f.name in md5):
             match = (md5[f.name] == hashlib.md5(f.open('rb').read()).hexdigest())
-            match = {True: "OK", False: "Failed"}[match]
+            match = ("OK" if match else "Failed")
             print(F"md5 check {f.name}: {match}")
+        else:
+            print(F"No md5 check for {f.name}")
+
 
     return files
 
@@ -103,8 +107,7 @@ def get_genome():
             > Header 1
             a
             b
-        etc.
-        Return
+        etc. Return
             [("Header 1", "ab"), ...]
         """
         chunks = [
@@ -118,16 +121,13 @@ def get_genome():
 
     with gzip.open(files['fasta'], mode='rb') as fd:
         # Get the first chunk
-        (meta, genome) = read(fd)[0]
-
-    # print(F"{meta} has length {len(genome)}")
-    # L77117.1 Methanocaldococcus jannaschii DSM 2661, complete genome has length 1664970
+        (meta, genome) = first(read(fd))
 
     # from collections import Counter
     # print(Counter(genome))
     # Counter({'A': 573429, 'T': 568290, 'G': 264573, 'C': 258665, 'Y': 4, 'N': 3, 'R': 3, 'M': 2, 'S': 1})
 
-    return genome
+    return (meta, genome)
 
 
 def all_kmers(string: str, k: int) -> dict:
@@ -205,8 +205,10 @@ def count_palindromes(genome):
 
 
 def main():
-    genome = get_genome()
-    print(F"Genome length: {len(genome)}")
+    (meta, genome) = get_genome()
+
+    print(F"`{meta}` has length {len(genome)}")
+    # L77117.1 Methanocaldococcus jannaschii DSM 2661, complete genome has length 1664970
 
     # kmer_histo(genome)
 
