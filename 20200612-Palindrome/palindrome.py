@@ -4,35 +4,26 @@
 Exercise [1, p.22]:
 Find genomic palindromes in the genome of "M. jannaschii".
 
-The first archaeon to have its complete genome sequenced.
+Run 20200612-M.jannaschii/download.py to download the genome.
 
 [1] Clote & Backofen, Computational Molecular Biology: An Introduction, 2000, Wiley
-[2] https://en.wikipedia.org/wiki/Methanocaldococcus_jannaschii
-[3] https://science.sciencemag.org/content/273/5278/1058.long
-[4] https://www.genome.jp/kegg-bin/show_organism?org=mja
-[5] ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1
-[6] https://www.ncbi.nlm.nih.gov/nuccore/L77117.1
-[7] https://en.wikipedia.org/wiki/FASTA_format#Sequence_representation
+[2] https://en.wikipedia.org/wiki/FASTA_format#Sequence_representation
 """
 
 import os
-import wget
 import gzip
-import hashlib
 import pandas as pd
 
 from pathlib import Path
-from datetime import datetime, timezone
 from inclusive import range
 from collections import defaultdict
+from collections import Counter
 from more_itertools import first
 
-PARAM = {
-    'fasta': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
-    'readme': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/README.txt",
-    'md5': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/md5checksums.txt",
 
-    'local': Path(__file__).parent / "genome/UV/",
+PARAM = {
+    'fasta': Path(__file__).parent.parent / "20200608-Downloads/genomes/M.jannaschii/UV/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
+
 }
 
 fasta_complement = {
@@ -58,71 +49,30 @@ fasta_complement = {
 }
 
 
-def download(url: str):
-    out = PARAM['local'] / Path(url).name
-    out.parent.mkdir(exist_ok=True, parents=True)
-
-    if out.exists():
-        return out
-
-    wget.download(str(url).format(), str(out))
-
-    with open(str(out) + "_meta.txt", 'w') as fd:
-        print("Downloaded on {} from".format(datetime.now(tz=timezone.utc)), file=fd)
-        print(url, file=fd)
-
-    return out
-
-
-def download_all():
-    return {
-        k: download(PARAM[k])
-        for k in ['fasta', 'readme', 'md5']
-    }
-
-
-def check_md5(files):
-    md5 = pd.read_csv(files['md5'], header=None, sep=' ').dropna(axis=1).set_index(0).squeeze()
-    md5 = md5.apply(lambda f: Path(f).name)
-    md5 = pd.Series(index=md5, data=md5.index)
-
-    for (k, f) in files.items():
-        if (f.name in md5):
-            match = (md5[f.name] == hashlib.md5(f.open('rb').read()).hexdigest())
-            match = ("OK" if match else "Failed")
-            print(F"md5 check {f.name}: {match}")
-        else:
-            print(F"No md5 check for {f.name}")
-
-    return files
+def read(fd):
+    """
+    Assume the file consists of chunks like this:
+        > Header 1
+        a
+        b
+    etc. Return
+        [("Header 1", "ab"), ...]
+    """
+    chunks = [
+        (header.strip(), "".join(map(str.strip, g.split('\n'))))
+        for (header, g) in [
+            chunk.split('\n', 1)
+            for chunk in fd.read().decode().strip().split('>') if chunk
+        ]
+    ]
+    return chunks
 
 
 def get_genome():
-    files = check_md5(download_all())
-
-    def read(fd):
-        """
-        Assume the file consists of chunks like this:
-            > Header 1
-            a
-            b
-        etc. Return
-            [("Header 1", "ab"), ...]
-        """
-        chunks = [
-            (header.strip(), "".join(map(str.strip, g.split('\n'))))
-            for (header, g) in [
-                chunk.split('\n', 1)
-                for chunk in fd.read().decode().strip().split('>') if chunk
-            ]
-        ]
-        return chunks
-
-    with gzip.open(files['fasta'], mode='rb') as fd:
+    with gzip.open(PARAM['fasta'], mode='rb') as fd:
         # Get the first chunk
         (meta, genome) = first(read(fd))
 
-    # from collections import Counter
     # print(Counter(genome))
     # Counter({'A': 573429, 'T': 568290, 'G': 264573, 'C': 258665, 'Y': 4, 'N': 3, 'R': 3, 'M': 2, 'S': 1})
 
@@ -149,7 +99,7 @@ def kmer_histo(genome):
 
 
 def backward(genome: str) -> str:
-    # See [7, FASTA format sequence representation]
+    # See [2, FASTA format sequence representation]
     return "".join(
         fasta_complement[c]
         for c in reversed(genome)
@@ -205,9 +155,14 @@ def count_palindromes(genome):
 
 def main():
     (meta, genome) = get_genome()
+    
+    # https://www.genome.jp/kegg-bin/show_organism?org=mja
+    print("Note: ignoring the fact that that the chromosome is CIRCULAR")
 
     print(F"`{meta}` has length {len(genome)}")
     # L77117.1 Methanocaldococcus jannaschii DSM 2661, complete genome has length 1664970
+
+    print(F"Bases content (approx): ", {k: round(v / len(genome), 4) for (k, v) in Counter(genome).items()})
 
     # kmer_histo(genome)
 
