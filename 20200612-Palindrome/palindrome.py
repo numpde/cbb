@@ -42,7 +42,7 @@ fasta_complement = {
     'C': 'G',
     'G': 'C',
 
-    # pYrimidines -- puRine
+    # pYrimidine -- puRine
     'Y': 'R',
     'R': 'Y',
 
@@ -93,7 +93,6 @@ def check_md5(files):
             print(F"md5 check {f.name}: {match}")
         else:
             print(F"No md5 check for {f.name}")
-
 
     return files
 
@@ -220,6 +219,9 @@ def main():
 
 def tests():
     assert (all_kmers("bbbc", 2) == {'bb': [0, 1], 'bc': [2]})
+    assert (backward("TACG") == "CGTA")
+    assert is_genomic_palindrome("TCGA")
+    print("Tests OK")
 
 
 if __name__ == '__main__':
