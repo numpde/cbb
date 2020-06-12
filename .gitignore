@@ -1,6 +1,7 @@
 # RA
 **/UV/**
 !**/UV/unversioned
+!**/UV/*_meta.txt
 *-samtools/*
 !*-samtools/makefile
 .idea
