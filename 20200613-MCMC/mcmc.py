@@ -132,7 +132,7 @@ def mcmc(scenario, seed):
         d = chi(p, q)
         h.at[k] = d
 
-        out_path = root_path / F"./figs/scenario={scenario:03}/seed={seed:04}"
+        out_path = root_path / F"./figs_rrt/scenario={scenario:03}/seed={seed:04}"
         out_path.mkdir(exist_ok=True, parents=True)
         # print("Writing to", out_path)
 
