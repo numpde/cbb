@@ -1,7 +1,7 @@
 # RA, 2020-06-16
 
 """
-Replicate the target–template sequence similarity in Swiss-Model.
+Replicate the target-template sequence similarity in Swiss-Model.
 
 From https://swissmodel.expasy.org/docs/help :
 

@@ -24,7 +24,7 @@ PARAM = {
     'readme': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/README.txt",
     'md5': "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/091/665/GCA_000091665.1_ASM9166v1/md5checksums.txt",
 
-    'local': Path(__file__).parent.parent / "20200608-Downloads/genomes/M.jannaschii/UV/",
+    'local': Path(__file__).parent / "genomes/M.jannaschii/complete/UV/",
 }
 
 

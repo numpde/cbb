@@ -8,6 +8,7 @@ Run 20200612-M.jannaschii/download.py to download the genome.
 
 [1] Clote & Backofen, Computational Molecular Biology: An Introduction, 2000, Wiley
 [2] https://en.wikipedia.org/wiki/FASTA_format#Sequence_representation
+[3] NCBI FASTA, https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=BlastHelp
 """
 
 import os
@@ -22,7 +23,7 @@ from more_itertools import first
 
 
 PARAM = {
-    'fasta': Path(__file__).parent.parent / "20200608-Downloads/genomes/M.jannaschii/UV/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
+    'fasta': Path(__file__).parent.parent / "20200608-Downloads/genomes/M.jannaschii/complete/UV/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
 
 }
 

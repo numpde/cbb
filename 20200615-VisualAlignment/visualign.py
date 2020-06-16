@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 from typing import Iterator
 from pathlib import Path
-from functools import lru_cache
+from functools import lru_cache as ramcache
 from diskcache import Cache
 from itertools import product
 
@@ -27,7 +27,7 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
 ROOT_PATH = Path(__file__).parent
-cache = Cache(ROOT_PATH / "cache/UV/")
+diskcache = Cache(ROOT_PATH / "cache/UV/").memoize(expire=None)
 
 PARAM = {
     'proteins': {
@@ -80,12 +80,13 @@ PARAM = {
 
 
 # expire: seconds until arguments expire (default None, no expiry)
-@cache.memoize(expire=None)
+@diskcache
 def download(url):
+    print(F"Downloading {url}")
     return requests.get(url).text
 
 
-@lru_cache
+@ramcache
 def read_blosum() -> pd.DataFrame:
     with PARAM['blosum'].open('r') as fd:
         s = '\n'.join(re.sub(r"\s+", ' ', line).rstrip() for line in fd.readlines() if not line.strip().startswith('#'))
