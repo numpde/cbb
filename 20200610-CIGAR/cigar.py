@@ -6,8 +6,21 @@ Sequence alignment with CIGAR-like annotation
 
 from typing import Tuple
 
+mutation_costs = {
+    # Deletion
+    'D': +2,
+    # Insertion
+    'I': +2,
+    # Mutation
+    'X': +1,
+    # Match
+    '=': -1,
+    # Skip tails
+    'S': 0,
+}
 
-def align(temp: str, read: str) -> Tuple[str, int]:
+
+def align(temp: str, read: str, costs=mutation_costs) -> Tuple[str, int]:
     from itertools import chain, groupby
     from collections import defaultdict
 
@@ -16,19 +29,6 @@ def align(temp: str, read: str) -> Tuple[str, int]:
     C = defaultdict(int)  # Cost
 
     (visited, seenext) = ({None}, {(0, 0)})
-
-    costs = {
-        # Deletion
-        'D': +2,
-        # Insertion
-        'I': +2,
-        # Mutation
-        'X': +1,
-        # Match
-        '=': -1,
-        # Skip tails
-        'S': 0,
-    }
 
     def propose(p):
         # i = position in the reference string
@@ -89,7 +89,7 @@ def visualize(temp, read, cigar: str):
     import re
     i = j = 0
     x = y = z = ""
-    for (a, n) in re.findall(r"[=XIDS][0-9]+", cigar):
+    for (a, n) in re.findall(r"([=XIDS])([0-9]+)", cigar):
         n = int(n)
         z += a * n
         if (a in '=XDS'):
@@ -107,13 +107,14 @@ def visualize(temp, read, cigar: str):
     return (x, y, z)
 
 
-temp = "CTAGCTACCGTCGTGCTA"
-read = "GCAACGACGATG"
+if __name__ == '__main__':
+    temp = "CTAGCTACCGTCGTGCTA"
+    read = "GCAACGACGATG"
 
-(cigar, cost) = align(temp, read)
-(x, y, z) = visualize(temp, read, cigar)
-print("Reference:", x)
-print("Lone read:", y)
-print("Operation:", z)
-print("CIGAR:    ", cigar)
-print("Cost:     ", cost)
+    (cigar, cost) = align(temp, read)
+    (x, y, z) = visualize(temp, read, cigar)
+    print("Reference:", x)
+    print("Lone read:", y)
+    print("Operation:", z)
+    print("CIGAR:    ", cigar)
+    print("Cost:     ", cost)
