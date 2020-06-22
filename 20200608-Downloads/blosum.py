@@ -2,6 +2,8 @@
 
 """
 Download the BLOSUM matrices.
+
+You may consider the `tcga` package instead.
 """
 
 import wget

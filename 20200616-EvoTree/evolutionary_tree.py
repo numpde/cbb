@@ -1,7 +1,7 @@
 # RA, 2020-06-16
 
 """
-Proof-of-concept reconstruction of a tree from distances.
+Proof-of-concept reconstruction of an evolutionary tree from *leaves* distances.
 
 May require
     sudo apt install graphviz
@@ -16,7 +16,7 @@ Follows
 """
 
 import ast
-from typing import Any, Tuple
+from typing import Any, Tuple, Iterable
 
 import numpy as np
 import pandas as pd
@@ -51,6 +51,15 @@ def save_tree(g: nx.DiGraph, filename: Path):
     return g
 
 
+# def is_ultrametric(d: pd.DataFrame, r, leaves):
+#     """
+#     An ultrametric is one where the distance
+#     from the root r to any leave is the same.
+#     """
+#     dr = d[r][leaves]
+#     return np.isclose(dr.std() / dr.mean(), 0)
+
+
 def farris(d: pd.DataFrame, r, leaves):
     # Average distance between r and the leaves
     c = d[r][leaves].mean()
@@ -62,25 +71,11 @@ def farris(d: pd.DataFrame, r, leaves):
     return e
 
 
-def upgma(d: pd.DataFrame):
-    d = d.copy(deep=True)
-
-    for i in d.index:
-        d.loc[i, i] = np.nan
-
-    for n in range(len(d) - 1):
-        (i, j) = np.nonzero((d == d.min().min()).to_numpy())
-        (i, j) = next(zip(d.index[i], d.columns[j]))
-        k = "({}, {})".format(i, j)
-        r = pd.DataFrame({k: (d[i] + d[j]) / 2})
-        d = pd.concat([d, r], axis=1)
-        d = pd.concat([d, r.T], axis=0)
-        d = d.drop(columns=[i, j], index=[i, j])
-
-    return tuple(ast.literal_eval(k))
-
-
-def uncluster(d: pd.DataFrame, cc) -> Tuple[Any, nx.DiGraph]:
+def uncluster(cc) -> Tuple[Any, nx.DiGraph]:
+    """
+    From a tuple like (0, ((1, 3), (2, 4))) construct a tree.
+    Returns a tuple (root node, digraph).
+    """
     g: nx.DiGraph
     g = nx.DiGraph()
     g.add_node(cc)
@@ -90,7 +85,7 @@ def uncluster(d: pd.DataFrame, cc) -> Tuple[Any, nx.DiGraph]:
 
     assert (len(cc) == 2)
 
-    ((u, U), (v, V)) = tuple(uncluster(d, c) for c in cc)
+    ((u, U), (v, V)) = (uncluster(c) for c in cc)
 
     g = nx.union_all([g, U, V])
     g.add_edge(cc, u)
@@ -99,22 +94,58 @@ def uncluster(d: pd.DataFrame, cc) -> Tuple[Any, nx.DiGraph]:
     return (cc, g)
 
 
-def get_leaves(g: nx.DiGraph):
-    return [x for x in g.nodes() if g.in_degree(x) and not g.out_degree(x)]
+def upgma(d: pd.DataFrame) -> Tuple:
+    """
+    Construct a binary tree form the distance matrix d
+    between the leaves using the UPGMA
+    (unweighted pair group method with arithmetic mean).
+    According to [1, Sec 4.3.1], the algorithm reconstructs
+    the tree correctly if the metric d is an ultrametric.
+    Returns a tuple like  (0, ((1, 3), (2, 4))).
+    """
+
+    d = d.copy(deep=True)
+
+    # Never try to group a node with itself
+    for i in d.index:
+        d.loc[i, i] = np.nan
+
+    for n in range(len(d) - 1):
+        (i, j) = np.nonzero((d == d.min().min()).to_numpy())
+        (i, j) = next(zip(d.index[i], d.columns[j]))
+        k = "({}, {})".format(i, j)  # a plain tuple confuses pandas
+        r = pd.DataFrame({k: (d[i] + d[j]) / 2})
+        d = pd.concat([d, r], axis=1)
+        d = pd.concat([d, r.T], axis=0)
+        d = d.drop(columns=[i, j], index=[i, j])
+
+    return tuple(ast.literal_eval(k))
+
+
+def get_leaves(g: nx.DiGraph) -> Iterable[Any]:
+    """
+    Assuming g is a tree yield the nodes
+    that have no out-edges.
+    """
+    for (x, d) in dict(g.out_degree).items():
+        if not d:
+            yield x
 
 
 def main():
     g = random_tree()
-    leaves = get_leaves(g)
+    leaves = list(get_leaves(g))
     save_tree(g, PARAM['out_path'] / "original_tree.png")
 
     d = pd.DataFrame(dict(nx.all_pairs_dijkstra_path_length(g.to_undirected(), weight='len')))
 
     e = upgma(farris(d, r=0, leaves=leaves))
 
-    (r, h) = uncluster(d, e)
+    (r, h) = uncluster(e)
 
     save_tree(h, PARAM['out_path'] / "restored_tree.png")
+
+    print("Check out", PARAM['out_path'])
 
 
 if __name__ == '__main__':

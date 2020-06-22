@@ -15,38 +15,17 @@ import os
 import gzip
 import pandas as pd
 
+from tcga.strings.complements import dna_to_dna
 from pathlib import Path
 from inclusive import range
 from collections import defaultdict
 from collections import Counter
 from more_itertools import first
 
-
 PARAM = {
-    'fasta': Path(__file__).parent.parent / "20200608-Downloads/genomes/M.jannaschii/complete/UV/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
+    'fasta': Path(
+        __file__).parent.parent / "20200608-Downloads/genomes/M.jannaschii/complete/UV/GCA_000091665.1_ASM9166v1_genomic.fna.gz",
 
-}
-
-fasta_complement = {
-    # Nucleotides
-    'A': 'T',
-    'T': 'A',
-    'C': 'G',
-    'G': 'C',
-
-    # pYrimidine -- puRine
-    'Y': 'R',
-    'R': 'Y',
-
-    # Strong interaction: C-G
-    'S': 'S',
-
-    # Nucleic acid
-    'N': 'N',
-
-    # Ketones (G, T, U) -- bases with aMino groups (A, C)
-    'M': 'K',
-    'K': 'M',
 }
 
 
@@ -99,16 +78,8 @@ def kmer_histo(genome):
     print(counts)
 
 
-def backward(genome: str) -> str:
-    # See [2, FASTA format sequence representation]
-    return "".join(
-        fasta_complement[c]
-        for c in reversed(genome)
-    )
-
-
 def is_genomic_palindrome(s: str):
-    return (s == backward(s))
+    return (s == dna_to_dna.backward(s))
 
 
 def find_palindromes(genome: str):
@@ -133,7 +104,7 @@ def find_palindromes(genome: str):
                 continue
             for i in ii:
                 (a, b) = (i, i + len(kmer))
-                while (0 <= a < b <= len(genome)) and (genome[a] == backward(genome[b - 1])):
+                while (0 <= a < b <= len(genome)) and (genome[a] == dna_to_dna(genome[b - 1])):
                     assert is_genomic_palindrome(genome[a:b])
                     palindromes[b - a].append(a)
                     a -= 1
@@ -145,7 +116,7 @@ def find_palindromes(genome: str):
 def count_palindromes(genome):
     palindromes = find_palindromes(genome)
 
-    # counts[k] is the number of palindroms locations of length k
+    # counts[k] is the number of k-palindrome locations
     counts = {
         k: len(ii)
         for (k, ii) in palindromes.items()
@@ -156,7 +127,7 @@ def count_palindromes(genome):
 
 def main():
     (meta, genome) = get_genome()
-    
+
     # https://www.genome.jp/kegg-bin/show_organism?org=mja
     print("Note: ignoring the fact that that the chromosome is CIRCULAR")
 
@@ -175,7 +146,7 @@ def main():
 
 def tests():
     assert (all_kmers("bbbc", 2) == {'bb': [0, 1], 'bc': [2]})
-    assert (backward("TACG") == "CGTA")
+    assert (dna_to_dna.backward("TACG") == "CGTA")
     assert is_genomic_palindrome("TCGA")
     print("Tests OK")
 
