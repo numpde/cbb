@@ -58,8 +58,8 @@ def is_basepair(x, y):
 
 def max_bp(s, memory={}):
     """
-    Maximize number of base pairs.
-    [4, Sec 'DP for MFE' on p.5]
+    Maximize number of base pairs. Refs:
+    [2], [3, First algorithm], [4, Sec 'DP for MFE' on p.5]
     """
 
     if (len(s) <= 1):
