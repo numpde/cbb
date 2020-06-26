@@ -1,7 +1,7 @@
 # RA, 2020-06-22
 
 """
-RNA secondary structure prediction.
+RNA secondary structure prediction, first algorithm of [2].
 Refs: [1, p.208], [2-4].
 
 [1] Clote & Backofen, Computational Molecular Biology: An Introduction, 2000, Wiley
@@ -17,7 +17,7 @@ import pandas as pd
 
 from itertools import product
 from collections import defaultdict
-from tcga.strings.complements import dna_to_dna
+from tcga.complements import dna_to_dna
 
 
 def is_basepair(x, y):
