@@ -12,11 +12,14 @@ Note on [5, p.364]:
     secondary structure must be tempered by also minimizing
     the number of loops."
 
+"Elegant, but still too often wrong." [6]
+
 [1] Clote & Backofen, Computational Molecular Biology: An Introduction, 2000, Wiley
 [2] Nussinov et al., Algorithms for loop matching, SIAM, 1978
 [3] Nussinov and Jacobson, Fast algorithm for [..] RNA, PNAS, 1980
 [4] https://en.wikipedia.org/wiki/Potato_spindle_tuber_viroid
 [5] Tinoco, Uhlenbeck and Levine, Estimation of secondary structure of RNA, Nature, 1971
+[6] Eddy, How do RNA folding algorithms work?, Nature Biotech, 2004
 """
 
 import os
@@ -44,7 +47,14 @@ PARAM = {
     'out_fig': ROOT_PATH / "figs/rna2.png",
 }
 
-diskcache = Cache(ROOT_PATH / "cache/compute/UV/").memoize(expire=None)
+# diskcache = Cache(ROOT_PATH / "cache/compute/UV/").memoize(expire=None)
+
+
+def get_pstg_seq() -> str:
+    viroid_fasta = download(PARAM['viroid']).to(rel_path="cache/download").now.text
+    pstg = SeqIO.read(io.StringIO(viroid_fasta), format='fasta')
+    s = First(dna_to_dna).then(dna_to_rna)(pstg.seq)
+    return s
 
 
 # Pairing energy, modified from [1, p.209]
@@ -57,6 +67,7 @@ def a(x, y):
     if (xy == "GU") or (xy == "UG"):
         return -1
     return np.inf
+
 
 class R:
     def __init__(self, e=np.inf, s="-"):
@@ -166,7 +177,6 @@ def view_graph(g):
         #
         # exit()
 
-
         nx.draw_networkx_nodes(g, pos=pos, **params)
         nx.draw_networkx_edges(g, pos=pos, ax=px.a, edgelist=bp, edge_color='b', **params)
         nx.draw_networkx_edges(g, pos=pos, ax=px.a, edgelist=bb, edge_color='k', **params)
@@ -179,11 +189,7 @@ def view_graph(g):
 
 
 def main():
-    viroid_fasta = download(PARAM['viroid']).to(rel_path="cache/download").now.text
-    pstg = SeqIO.read(io.StringIO(viroid_fasta), format='fasta')
-
-    S = pstg.seq[0:]
-    S = First(dna_to_dna).then(dna_to_rna)(S)
+    S = get_pstg_seq()
 
     (e, B) = pair_up2(S).as_tuple()
     print("Folding energy:", e)
