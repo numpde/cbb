@@ -1,10 +1,11 @@
 # RA, 2020-06-28
 
 """
-Computational experiment confirming the FDR correction.
-Based on [1].
+Computational experiment confirming the FDR correction [1].
+Based on [2].
 
-[1] https://cpb-us-w2.wpmucdn.com/blog.nus.edu.sg/dist/0/3425/files/2018/10/Understanding-Benjamini-Hochberg-method-2ijolq0.pdf
+[1] Benjamini and Hochberg, Controlling the false discovery rate, J R Statist Soc B, 1995
+[2] https://cpb-us-w2.wpmucdn.com/blog.nus.edu.sg/dist/0/3425/files/2018/10/Understanding-Benjamini-Hochberg-method-2ijolq0.pdf
 """
 
 import numpy as np
@@ -14,10 +15,14 @@ from inclusive import range
 from plox import Plox
 from tcga.utils import download
 from pathlib import Path
+from itertools import count
 
-# Reference [1]
-slides = "https://cpb-us-w2.wpmucdn.com/blog.nus.edu.sg/dist/0/3425/files/2018/10/Understanding-Benjamini-Hochberg-method-2ijolq0.pdf"
-download(slides).to(rel_path="cache/download").now
+# Reference [2]
+download(
+    "https://cpb-us-w2.wpmucdn.com/blog.nus.edu.sg/dist/0/3425/files/2018/10/Understanding-Benjamini-Hochberg-method-2ijolq0.pdf"
+).to(
+    rel_path="cache/download"
+).now
 
 
 def get_obs():
@@ -47,7 +52,11 @@ def get_obs():
 
 
 def pvalues(obs):
-    # https://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm (http://archive.ph/bzplE)
+    """
+    `obs` is a list of pairs [g1, g2]
+    where g1 and g2 are two groups of observations.
+    https://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm (http://archive.ph/bzplE)
+    """
 
     ts = [
         (np.mean(g1) - np.mean(g2)) / np.sqrt(np.var(g1) / len(g1) + np.var(g2) / len(g2))
@@ -76,6 +85,13 @@ def pvalues(obs):
     return ps
 
 
+def to_fdr(pp) -> list:
+    (_, _, aa) = map(list, zip(
+        *sorted((i, p, p / r * len(pp)) for (r, (p, i)) in zip(count(1), sorted(zip(pp, count(1)))))
+    ))
+    return aa
+
+
 def main():
     (obs, h0) = get_obs()
     ps = pvalues(obs)
@@ -87,19 +103,19 @@ def main():
     print(F"There are {sum(ps <= alpha)} p-values less or equal {alpha}.")
 
     # The true False Discovery Rate for the corresponding p-values `ps`
-    fdr = np.cumsum(h0) / ranks
+    fdr_true = np.cumsum(h0) / ranks
 
-    # Benjamini-Hochberg estimate: FDR -> p-value
-    fdr_est = sorted(fdr[fdr > 0])
-    ps_est = [max(ps[ps <= (a / len(ranks) * ranks)]) for a in fdr_est]
+    # Benjamini-Hochberg estimate: p-value -> FDR
+    fdr_est = np.asarray(to_fdr(ps))
 
     fig_path = Path(__file__).parent / "figs"
     fig_path.mkdir(parents=True, exist_ok=True)
 
     with Plox() as px:
-        px.a.plot(ps[fdr > 0], fdr[fdr > 0], label="True FDR")
-        px.a.plot(ps_est, fdr_est, label="B-H FDR")
-        px.a.plot([min(ps_est), max(ps_est)], [alpha, alpha], "r--", label=(F"FDR = {alpha}"))
+        ii = (fdr_true > 0)  # because of log-log plot
+        px.a.plot(ps[ii], fdr_true[ii], label="True FDR")
+        px.a.plot(ps[ii], fdr_est[ii], label="B-H FDR")
+        px.a.plot([min(ps[ii]), max(ps[ii])], [alpha, alpha], "r--", label=(F"FDR = {alpha}"))
         px.a.grid()
         px.a.set_xscale('log')
         px.a.set_yscale('log')
