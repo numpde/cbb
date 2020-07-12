@@ -2,8 +2,11 @@
 **/UV/**
 !**/UV/unversioned
 !**/UV/*_meta.txt
-*/20200609-Tools/**
+20200609-Tools/**
 !20200609-samtools/samtools/makefile
+!20200609-samtools/sga/install.sh
+!20200609-samtools/spades/install.sh
+!20200609-samtools/sratools/install.sh
 .idea
 
 
