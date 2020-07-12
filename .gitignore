@@ -2,7 +2,7 @@
 **/UV/**
 !**/UV/unversioned
 !**/UV/*_meta.txt
-*/20200609-Tools/*
+*/20200609-Tools/**
 !20200609-samtools/samtools/makefile
 .idea
 
