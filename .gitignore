@@ -2,6 +2,8 @@
 **/UV/**
 !**/UV/unversioned
 !**/UV/*_meta.txt
+20200608-Downloads/cache/
+*/cache/download
 20200609-Tools/**
 !20200609-samtools/samtools/makefile
 !20200609-samtools/sga/install.sh
