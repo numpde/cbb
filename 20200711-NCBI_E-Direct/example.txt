@@ -1,0 +1,205 @@
+# Painful way below
+# It seems the website is moving to a rest API, cf. edirect.py (2020-07-12)
+
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=assembly&term=Acidaminococcus+intestini&retmode=json
+{
+    "header": {
+        "type": "esearch",
+        "version": "0.3"
+    },
+    "esearchresult": {
+        "count": "5",
+        "retmax": "5",
+        "retstart": "0",
+        "idlist": [
+            "4703811",
+            "4347271",
+            "310278",
+            "216538",
+            "60021"
+        ],
+        "translationset": [
+            {
+                "from": "Acidaminococcus intestini",
+                "to": "\"Acidaminococcus intestini\"[Organism]"
+            }
+        ],
+        "translationstack": [
+            {
+                "term": "\"Acidaminococcus intestini\"[Organism]",
+                "field": "Organism",
+                "count": "5",
+                "explode": "Y"
+            },
+            "GROUP"
+        ],
+        "querytranslation": "\"Acidaminococcus intestini\"[Organism]"
+    }
+}
+
+
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=assembly&id=4347271&rettype=docsum&retmode=json
+{
+    "header": {
+        "type": "esummary",
+        "version": "0.3"
+    },
+    "result": {
+        "uids": [
+            "4347271"
+        ],
+        "4347271": {
+            "uid": "4347271",
+            "rsuid": "13316698",
+            "gbuid": "13227888",
+            "assemblyaccession": "GCF_902381715.1",
+            "lastmajorreleaseaccession": "GCF_902381715.1",
+            "latestaccession": "",
+            "chainid": "902381715",
+            "assemblyname": "UHGG_MGYG-HGUT-01440",
+            "ucscname": "",
+            "ensemblname": "",
+            "taxid": "187327",
+            "organism": "Acidaminococcus intestini (firmicutes)",
+            "speciestaxid": "187327",
+            "speciesname": "Acidaminococcus intestini",
+            "assemblytype": "haploid",
+            "assemblyclass": "haploid",
+            "assemblystatus": "Chromosome",
+            "assemblystatussort": 2,
+            "wgs": "",
+            "gb_bioprojects": [
+                {
+                    "bioprojectaccn": "PRJEB33885",
+                    "bioprojectid": 559126
+                }
+            ],
+            "gb_projects": [
+            ],
+            "rs_bioprojects": [
+                {
+                    "bioprojectaccn": "PRJNA224116",
+                    "bioprojectid": 224116
+                }
+            ],
+            "rs_projects": [
+            ],
+            "biosampleaccn": "SAMEA5850943",
+            "biosampleid": "12519913",
+            "biosource": {
+                "infraspecieslist": [
+                ],
+                "sex": "",
+                "isolate": "MGYG-HGUT-01440"
+            },
+            "coverage": "10",
+            "partialgenomerepresentation": "false",
+            "primary": "13316688",
+            "assemblydescription": "",
+            "releaselevel": "Major",
+            "releasetype": "Major",
+            "asmreleasedate_genbank": "2019/08/17 00:00",
+            "asmreleasedate_refseq": "2019/08/22 00:00",
+            "seqreleasedate": "2019/08/10 00:00",
+            "asmupdatedate": "2019/08/22 00:00",
+            "submissiondate": "2019/08/10 00:00",
+            "lastupdatedate": "2019/08/22 00:00",
+            "submitterorganization": "EMG",
+            "refseq_category": "na",
+            "anomalouslist": [
+            ],
+            "exclfromrefseq": [
+            ],
+            "propertylist": [
+                "full-genome-representation",
+                "has-chromosome",
+                "has_annotation",
+                "latest",
+                "latest_genbank",
+                "latest_refseq",
+                "refseq_has_annotation"
+            ],
+            "fromtype": "",
+            "synonym": {
+                "genbank": "GCA_902381715.1",
+                "refseq": "GCF_902381715.1",
+                "similarity": "identical"
+            },
+            "contign50": 110423,
+            "scaffoldn50": 2287856,
+            "ftppath_genbank": "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/902/381/715/GCA_902381715.1_UHGG_MGYG-HGUT-01440",
+            "ftppath_refseq": "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/902/381/715/GCF_902381715.1_UHGG_MGYG-HGUT-01440",
+            "ftppath_assembly_rpt": "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/902/381/715/GCF_902381715.1_UHGG_MGYG-HGUT-01440/GCF_902381715.1_UHGG_MGYG-HGUT-01440_assembly_report.txt",
+            "ftppath_stats_rpt": "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/902/381/715/GCF_902381715.1_UHGG_MGYG-HGUT-01440/GCF_902381715.1_UHGG_MGYG-HGUT-01440_assembly_stats.txt",
+            "ftppath_regions_rpt": "",
+            "sortorder": "5C2X9998895769023817159898",
+            "meta": " &lt;Stats&gt; &lt;Stat category=\"alt_loci_count\" sequence_tag=\"all\"&gt;0&lt;/Stat&gt; &lt;Stat category=\"chromosome_count\" sequence_tag=\"all\"&gt;1&lt;/Stat&gt; &lt;Stat category=\"contig_count\" sequence_tag=\"all\"&gt;38&lt;/Stat&gt; &lt;Stat category=\"contig_l50\" sequence_tag=\"all\"&gt;8&lt;/Stat&gt; &lt;Stat category=\"contig_n50\" sequence_tag=\"all\"&gt;110423&lt;/Stat&gt; &lt;Stat category=\"non_chromosome_replicon_count\" sequence_tag=\"all\"&gt;0&lt;/Stat&gt; &lt;Stat category=\"replicon_count\" sequence_tag=\"all\"&gt;1&lt;/Stat&gt; &lt;Stat category=\"scaffold_count\" sequence_tag=\"all\"&gt;1&lt;/Stat&gt; &lt;Stat category=\"scaffold_count\" sequence_tag=\"placed\"&gt;1&lt;/Stat&gt; &lt;Stat category=\"scaffold_count\" sequence_tag=\"unlocalized\"&gt;0&lt;/Stat&gt; &lt;Stat category=\"scaffold_count\" sequence_tag=\"unplaced\"&gt;0&lt;/Stat&gt; &lt;Stat category=\"scaffold_l50\" sequence_tag=\"all\"&gt;1&lt;/Stat&gt; &lt;Stat category=\"scaffold_n50\" sequence_tag=\"all\"&gt;2287856&lt;/Stat&gt; &lt;Stat category=\"total_length\" sequence_tag=\"all\"&gt;2287856&lt;/Stat&gt; &lt;Stat category=\"ungapped_length\" sequence_tag=\"all\"&gt;2243882&lt;/Stat&gt; &lt;/Stats&gt; &lt;FtpSites&gt;   &lt;FtpPath type=\"Assembly_rpt\"&gt;ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/902/381/715/GCF_902381715.1_UHGG_MGYG-HGUT-01440/GCF_902381715.1_UHGG_MGYG-HGUT-01440_assembly_report.txt&lt;/FtpPath&gt;   &lt;FtpPath type=\"GenBank\"&gt;ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/902/381/715/GCA_902381715.1_UHGG_MGYG-HGUT-01440&lt;/FtpPath&gt;   &lt;FtpPath type=\"RefSeq\"&gt;ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/902/381/715/GCF_902381715.1_UHGG_MGYG-HGUT-01440&lt;/FtpPath&gt;   &lt;FtpPath type=\"Stats_rpt\"&gt;ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/902/381/715/GCF_902381715.1_UHGG_MGYG-HGUT-01440/GCF_902381715.1_UHGG_MGYG-HGUT-01440_assembly_stats.txt&lt;/FtpPath&gt; &lt;/FtpSites&gt; &lt;assembly-level&gt;4&lt;/assembly-level&gt; &lt;assembly-status&gt;Chromosome&lt;/assembly-status&gt; &lt;representative-status&gt;na&lt;/representative-status&gt; &lt;submitter-organization&gt;EMG&lt;/submitter-organization&gt;    "
+        }
+    }
+}
+
+
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=genome&term=Acidaminococcus+intestini&retmode=json
+{
+    "header": {
+        "type": "esearch",
+        "version": "0.3"
+    },
+    "esearchresult": {
+        "count": "1",
+        "retmax": "1",
+        "retstart": "0",
+        "idlist": [
+            "11128"
+        ],
+        "translationset": [
+            {
+                "from": "Acidaminococcus intestini",
+                "to": "\"Acidaminococcus intestini\"[Organism]"
+            }
+        ],
+        "translationstack": [
+            {
+                "term": "\"Acidaminococcus intestini\"[Organism]",
+                "field": "Organism",
+                "count": "1",
+                "explode": "Y"
+            },
+            "GROUP"
+        ],
+        "querytranslation": "\"Acidaminococcus intestini\"[Organism]"
+    }
+}
+
+
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=genome&id=11128&db=nuccore&term=wgs&retmode=json
+{
+    "header": {
+        "type": "elink",
+        "version": "0.3"
+    },
+    "linksets": [
+        {
+            "dbfrom": "genome",
+            "ids": [
+                "11128"
+            ],
+            "linksetdbs": [
+                {
+                    "dbto": "nuccore",
+                    "linkname": "genome_nuccore",
+                    "links": [
+                        "651250934",
+                        "224815814",
+                        "1748319826",
+                        "224808027",
+                        "523403864"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=224815814&rettype=fasta&retmode=text
