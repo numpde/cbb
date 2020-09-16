@@ -1,8 +1,22 @@
 #!/usr/bin/env bash
 
-
-# SGA requires bamtools:
+# SGA requires bamtools, use
 # sudo apt install bamtools
+
+# sga-align requires bwa, use
+# sudo apt install bwa
+
+# sga-align requires abyss
+# sudo apt-get install abyss
+
+# sga-align requires samtools
+source ../20200609-Tools/samtools/paths.txt
+if which samtools; then
+  echo "samtools!"
+else
+  echo "samtools?"
+  exit
+fi
 
 # The following is modified from
 # https://github.com/jts/sga/blob/master/src/examples/sga-celegans.sh
@@ -59,6 +73,12 @@ SCAFFOLD_TOLERANCE=1
 # Turn off collapsing bubbles around indels
 MAX_GAP_DIFF=0
 
+#
+# Scaffolding/Paired end resolution
+#
+CTGS=assemble.m$OL-contigs.fa
+GRAPH=assemble.m$OL-graph.asqg.gz
+
 # First, preprocess the data to remove ambiguous basecalls
 $SGA_BIN preprocess --pe-mode 1 -o SRR065390.fastq $IN1 $IN2
 
@@ -99,23 +119,14 @@ $SGA_BIN overlap -m $MOL -t $CPU merged.k$CK.rmdup.fa
 # Perform the contig assembly without bubble popping
 $SGA_BIN assemble -m $OL -g $MAX_GAP_DIFF -r $R -o assemble.m$OL merged.k$CK.rmdup.asqg.gz
 
-#
-# Scaffolding/Paired end resolution
-#
-CTGS=assemble.m$OL-contigs.fa
-GRAPH=assemble.m$OL-graph.asqg.gz
-
-exit
-
 # Realign reads to the contigs
-$SGA_SRC/bin/sga-align --name celegans.pe $CTGS $IN1 $IN2
+$SGA_SRC/bin/sga-align --name celegans.pe $CTGS $IN1 $IN2 || exit
 
 # Make contig-contig distance estimates
-$SGA_SRC/bin/sga-bam2de.pl -n $MIN_PAIRS --prefix libPE celegans.pe.bam
+$SGA_SRC/bin/sga-bam2de.pl -n $MIN_PAIRS --prefix libPE celegans.pe.bam || exit
 
 # Make contig copy number estimates
-$SGA_SRC/bin/sga-astat.py -m $MIN_LENGTH celegans.pe.refsort.bam > libPE.astat
+$SGA_SRC/bin/sga-astat.py -m $MIN_LENGTH celegans.pe.refsort.bam >libPE.astat || exit
 
 $SGA_BIN scaffold -m $MIN_LENGTH --pe libPE.de -a libPE.astat -o scaffolds.n$MIN_PAIRS.scaf $CTGS
 $SGA_BIN scaffold2fasta -m $MIN_LENGTH -a $GRAPH -o scaffolds.n$MIN_PAIRS.fa -d $SCAFFOLD_TOLERANCE --use-overlap --write-unplaced scaffolds.n$MIN_PAIRS.scaf
-
