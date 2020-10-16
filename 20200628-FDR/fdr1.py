@@ -17,11 +17,11 @@ from tcga.utils import download
 from pathlib import Path
 from itertools import count
 
+download = download.to(rel_path="cache/download")
+
 # Reference [2]
 download(
     "https://cpb-us-w2.wpmucdn.com/blog.nus.edu.sg/dist/0/3425/files/2018/10/Understanding-Benjamini-Hochberg-method-2ijolq0.pdf"
-).to(
-    rel_path="cache/download"
 ).now
 
 
@@ -51,38 +51,36 @@ def get_obs():
     return (obs, h0_is_true)
 
 
-def pvalues(obs):
+def pvalue(g1, g2):
     """
-    `obs` is a list of pairs [g1, g2]
-    where g1 and g2 are two groups of observations.
-    https://www.itl.nist.gov/div898/handbook/eda/section3/eda353.htm (http://archive.ph/bzplE)
+    Welch's t-test.
+    H0: Avg(g1) >= Avg(g2)
+
+    https://en.wikipedia.org/wiki/Welch%27s_t-test
     """
-
-    ts = [
-        (np.mean(g1) - np.mean(g2)) / np.sqrt(np.var(g1) / len(g1) + np.var(g2) / len(g2))
-        for (g1, g2) in obs
-    ]
-
-    nus = [
-        # len(g1) + len(g2) - 2
-        (
-                (np.var(g1) / len(g1) + np.var(g2) / len(g2)) ** 2
-        ) / (
-                ((np.var(g1) / len(g1)) ** 2) / (len(g1) - 1)
-                +
-                ((np.var(g2) / len(g2)) ** 2) / (len(g2) - 1)
-        )
-        for (g1, g2) in obs
-    ]
 
     from scipy.stats import t as student_t
-    ps = np.asarray([
-        # 2 * (0.5 - abs(0.5 - student_t.cdf(t, nu)))  # two-sided
-        student_t.cdf(t, nu)  # one-sided
-        for (t, nu) in zip(ts, nus)
-    ])
 
-    return ps
+    n1 = len(g1)
+    n2 = len(g2)
+    v1 = np.var(g1) / n1
+    v2 = np.var(g2) / n2
+    t = (np.mean(g1) - np.mean(g2)) / np.sqrt(v1 + v2)
+    nu = ((v1 + v2) ** 2) / ((v1 ** 2) / (n1 - 1) + (v2 ** 2) / (n2 - 1))
+
+    return student_t.cdf(t, nu)
+
+
+def pvalues(obs):
+    """
+    `obs` is a list of pairs (g1, g2)
+    where g1 and g2 are two groups of observations.
+    """
+
+    return np.asarray([
+        pvalue(g1, g2)
+        for (g1, g2) in obs
+    ])
 
 
 def to_fdr(pp) -> list:
