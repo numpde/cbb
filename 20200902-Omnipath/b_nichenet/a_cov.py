@@ -8,6 +8,10 @@
 # https://www.biorxiv.org/content/10.1101/2020.08.03.221242v2
 #
 # [2]
+# RA, Notes on [1]:
+# https://docs.google.com/document/d/1_qor03mpaB_ey6sUrSG4aGmSkW8WxPd7iplxh3e4uPc
+#
+# [3]
 # Transcriptional response to SARS-CoV-2 infection
 # https://doi.org/10.1101/2020.03.24.004655
 # https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE147507
@@ -37,7 +41,7 @@ PARAM = {
 }
 
 # Setup default folder for downloads
-download = download.to(abs_path=(ROOT / "download"))
+download = download.to(abs_path=(ROOT / "UV/download"))
 
 
 # Load the transcriptional response datasets
@@ -55,7 +59,7 @@ with tempfile.NamedTemporaryFile() as tf:
         print(k)
         # print(v)
 
-exit()
+# exit()
 
 # # Doesn't work:
 # import pyreadr
@@ -188,11 +192,13 @@ print(len(df_cov2), "genes left:", list(df_cov2.index))
 # o) various cytokines: interleukins (IL23A and IL1A), tumor necrosis factors (TNF and TNFSF13B)
 # and
 # o) chemokines (CXCL5, CXCL9 and CXCL10), known to be involved in the inflammatory response.
-# TODO: according to NicheNet?
-# TODO: what is "top-ranked"?
+# TODO: according to NicheNet? -> see notes
+# TODO: what is "top-ranked"? -> see notes
 
-top_ranked_ref = ["CXCL9", "CXCL10", "CXCL5", "L1CAM", "ICAM4", "LAMA2", "TNFSF13B", "TNF", "NPPB", "INHBA", "IL1A",
-                  "IL23A"]
+# "Prioritized ligands" from [1], see [1, Fig S6d] / [2, Fig S6d].
+top_ranked_ref = [
+    "CXCL9", "CXCL10", "CXCL5", "L1CAM", "ICAM4", "LAMA2", "TNFSF13B", "TNF", "NPPB", "INHBA", "IL1A", "IL23A",
+]
 top_ranked_ref = list(set(top_ranked_ref) & set(df_deseq2.index))
 # print("Got all the top genes:", len(top_ranked_ref) == 12)
 
