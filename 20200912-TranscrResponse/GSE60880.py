@@ -5,6 +5,7 @@
 #   HLF cells were incubated with each agent for 0.5 hours, 1 hour, 2 hours or 8 hours in standard conditions
 #   before total RNA was prepared and hybridised to Affymetrix microarrays.
 #   https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE60880
+#   Aug 28, 2014 -- Jan 29, 2019
 #
 # Bradley G, Barrett SJ.
 # CausalR: extracting mechanistic sense from genome scale data.
@@ -25,7 +26,7 @@ import pandas as pd
 from tcga.utils import download
 
 # Default download directory
-download = download.to(rel_path="download")
+download = download.to(rel_path="UV/download")
 
 url = "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE60nnn/GSE60880/matrix/GSE60880_series_matrix.txt.gz"
 with download(url).now.open(mode='rb') as gz:
