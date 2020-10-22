@@ -1,4 +1,4 @@
-# RA, 2020-06-28
+# RA, 2020-10-22
 
 """
 Log-likelihood test statistic example.
@@ -7,28 +7,32 @@ Log-likelihood test statistic example.
 import numpy as np
 from pathlib import Path
 from plox import Plox
-from scipy.stats import norm, chi2, t as student_t
+from scipy.stats import norm, chi2, linregress
 
 
 def experiment(n):
-    # True proba density
-    p = norm(loc=2, scale=1)
-    # Generate a sample (observations)
-    samples = p.rvs(n)
-    # Proba inferred from observations
-    p1 = norm(loc=np.mean(samples), scale=np.std(samples))
+    # True model
+    a = -1
+    b = 0.0
+    x = np.arange(0, n)
+    s = 1
+    # Generate observations
+    y = a + b * x + norm(loc=0, scale=s).rvs(n)
+    # Linear regression
+    (b_hat, a_hat, _, _, _) = linregress(x, y)
     # The log-likelihood statistic
-    lam = 2 * (np.sum(np.log(p1.pdf(samples))) - np.sum(np.log(p.pdf(samples))))
+    lam = (s ** (-2)) * (np.sum(np.power(y - np.mean(y), 2)) - np.sum(np.power(y - (a_hat + b_hat * x), 2)))
     return lam
 
 
 n = 10
-r = 10000
-T = [experiment(n=n) for _ in range(r)]
+r = 1000
+T = np.array([experiment(n=n) for _ in range(r)])
 
 with Plox() as px:
+    T = T[(np.quantile(T, 0.01) <= T) & (T <= np.quantile(T, 0.9))]
     px.a.hist(T, bins='stone', density=True, label="Observed")
-    df = 2
+    df = 1
     px.a.plot(sorted(T), chi2(df=df).pdf(sorted(T)), '-', label=F"chi-squared (df={df})")
     px.a.set_title(F"Wilks' theorem for {r} experiments of sample size {n}")
     px.a.set_xlabel("lambda")
